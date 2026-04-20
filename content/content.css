@@ -1,10 +1,19 @@
 /*
  * Marginote content-script styles.
  *
- * Convention: every class injected by Marginote into a host page is prefixed
- * with `marginote-` to avoid name collisions. Root containers additionally
- * set `all: initial` (see the selector below once it lands in Prompt 2) so
- * host-page cascade cannot bleed into our UI.
+ * Convention: every class injected into a host page is prefixed with
+ * `marginote-` to avoid name collisions. The tooltip lives inside Shadow
+ * DOM on `#marginote-root` so it is fully isolated from host styles; this
+ * file only needs to style elements that live in the light DOM — i.e.
+ * the highlight spans. Keep rules minimal (background + border-radius)
+ * so we don't change host layout.
  *
- * This file is intentionally minimal in Prompt 1 — filled in in Prompt 2.
+ * Per-annotation `background-color` is set inline on each span (derived
+ * from the project color at 35% opacity) so the stylesheet stays static.
  */
+
+.marginote-highlight {
+  border-radius: 2px;
+  /* background-color is set inline per annotation */
+  cursor: pointer;
+}

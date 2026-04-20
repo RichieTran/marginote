@@ -43,7 +43,7 @@ Subgroup:
   createdAt: ISO timestamp
 
 Annotation:
-  id: string (uuid)
+  id: string (uuid)     
   projectId: string
   subgroupId: string | null
   pageUrl: string
@@ -64,4 +64,23 @@ CONVENTIONS.md — copy the Global Conventions block from the top of this docume
 TESTING.md — empty file with a header "Manual test log" where you'll record per-prompt verification notes.
 Verify: the extension loads without manifest errors, the popup opens, the dashboard opens via the popup button and the keyboard shortcut, and chrome.storage.local is readable/writable from a test call in the popup.
 
-2. 
+2. **Highlighting and saving annotations**
+Building on the existing Marginote extension, implement the core highlighting system in the content script.
+Selection tooltip. When a user selects non-empty text on any webpage, render a small floating tooltip anchored just above the selection's bounding rect with a Save button. The tooltip is injected into a dedicated <div id="marginote-root"> appended to document.body, and uses Shadow DOM to isolate its styles from the host page. The tooltip dismisses when: (a) the user clicks outside it, (b) the selection is cleared, or (c) Escape is pressed. Clicking Save saves the annotation via the storage utility and removes the tooltip.
+Anchor strategy. When saving, capture:
+
+selectedText — the selected string.
+contextBefore / contextAfter — 30 chars before and after the selection in the container's textContent.
+containerSelector — a selector for the nearest stable ancestor. Use a simple, pragmatic strategy: walk up from the selection's common ancestor and pick the first ancestor with an id (use #id); otherwise build a path of tagName:nth-of-type(n) up to body with a max depth of 6. Keep this in a single buildSelector(node) helper function. Do not pull in an external library.
+textOffset — the character offset of the selection start within the container's textContent.
+
+Re-highlighting on load. On page load (and on SPA route changes — use a MutationObserver on document.body with a debounce of 300ms to detect significant DOM changes), load all annotations for the current URL and re-apply highlights. Resolution order:
+
+Try document.querySelector(containerSelector). If found, use textOffset and selectedText.length to locate the range within that container's text nodes and wrap it.
+If the selector fails, search the full document for contextBefore + selectedText + contextAfter; if found, wrap the middle portion.
+If both fail, log a console.warn with the annotation ID and skip silently (do not error).
+
+Highlight rendering. Wrap the matched range in <span class="marginote-highlight" data-annotation-id="…"> with background-color set to the annotation's project color at 35% opacity. Use the marginote- class prefix and scope all styles in content.css.
+Delete via context menu. Register a context menu item "Delete Marginote annotation" via chrome.contextMenus.create in the background service worker, shown only when right-clicking on a marginote-highlight element (use documentUrlPatterns and pass the annotation ID via a message from the content script to the background when the menu fires). On click, delete the annotation and unwrap the highlight span in-place. Do not override the browser's native right-click menu.
+Styling. The tooltip is a small rounded rectangle with subtle shadow, ~32px tall, inside Shadow DOM so host styles can't affect it. The highlight span uses only background-color and border-radius: 2px to minimize layout disruption.
+Verify on the three test site types and log results in TESTING.md.

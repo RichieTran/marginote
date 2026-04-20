@@ -110,23 +110,18 @@ async function writeRoot(patch) {
 /**
  * Run schema migrations. Safe to call repeatedly. Missing fields on older
  * records are filled with defaults rather than erroring.
+ *
+ * Idempotent: when the store is already at the current schema, this writes
+ * nothing. That matters because callers may race (a delete-annotation
+ * handler running while migrate is mid-flight would otherwise be clobbered
+ * by migrate writing back the pre-delete annotations).
  * @returns {Promise<void>}
  */
 export async function migrate() {
   try {
     const root = await readRoot();
-    const patch = {};
 
-    if (typeof root.schemaVersion !== 'number') {
-      patch.schemaVersion = CURRENT_SCHEMA_VERSION;
-    }
-    if (!Array.isArray(root.projects)) patch.projects = [];
-    if (!Array.isArray(root.subgroups)) patch.subgroups = [];
-    if (!Array.isArray(root.annotations)) patch.annotations = [];
-    if (typeof root.activeProjectId === 'undefined') patch.activeProjectId = null;
-
-    // Per-record defaults for annotations (note is added in Prompt 6).
-    const annotations = (patch.annotations || root.annotations).map((a) => ({
+    const normalizedAnnotations = (root.annotations || []).map((a) => ({
       id: a.id,
       projectId: a.projectId,
       subgroupId: a.subgroupId ?? null,
@@ -144,23 +139,14 @@ export async function migrate() {
       createdAt: a.createdAt ?? new Date().toISOString(),
     }));
 
-    const projects = (patch.projects || root.projects).map((p) => ({
+    const normalizedProjects = (root.projects || []).map((p) => ({
       id: p.id,
       name: p.name ?? 'Untitled',
       color: p.color ?? GENERAL_PROJECT_COLOR,
       createdAt: p.createdAt ?? new Date().toISOString(),
     }));
-
-    const subgroups = (patch.subgroups || root.subgroups).map((s) => ({
-      id: s.id,
-      projectId: s.projectId,
-      name: s.name ?? 'Untitled',
-      createdAt: s.createdAt ?? new Date().toISOString(),
-    }));
-
-    // Ensure the reserved "General" project exists so cascade-to-General works.
-    if (!projects.some((p) => p.id === GENERAL_PROJECT_ID)) {
-      projects.unshift({
+    if (!normalizedProjects.some((p) => p.id === GENERAL_PROJECT_ID)) {
+      normalizedProjects.unshift({
         id: GENERAL_PROJECT_ID,
         name: GENERAL_PROJECT_NAME,
         color: GENERAL_PROJECT_COLOR,
@@ -168,12 +154,33 @@ export async function migrate() {
       });
     }
 
-    patch.projects = projects;
-    patch.subgroups = subgroups;
-    patch.annotations = annotations;
-    patch.schemaVersion = CURRENT_SCHEMA_VERSION;
+    const normalizedSubgroups = (root.subgroups || []).map((s) => ({
+      id: s.id,
+      projectId: s.projectId,
+      name: s.name ?? 'Untitled',
+      createdAt: s.createdAt ?? new Date().toISOString(),
+    }));
 
-    await writeRoot(patch);
+    const patch = {};
+    if (root.schemaVersion !== CURRENT_SCHEMA_VERSION) {
+      patch.schemaVersion = CURRENT_SCHEMA_VERSION;
+    }
+    if (JSON.stringify(root.projects) !== JSON.stringify(normalizedProjects)) {
+      patch.projects = normalizedProjects;
+    }
+    if (JSON.stringify(root.subgroups) !== JSON.stringify(normalizedSubgroups)) {
+      patch.subgroups = normalizedSubgroups;
+    }
+    if (JSON.stringify(root.annotations) !== JSON.stringify(normalizedAnnotations)) {
+      patch.annotations = normalizedAnnotations;
+    }
+    if (typeof root.activeProjectId === 'undefined') {
+      patch.activeProjectId = null;
+    }
+
+    if (Object.keys(patch).length > 0) {
+      await writeRoot(patch);
+    }
   } catch (err) {
     console.warn('[marginote] migrate failed', err);
     throw err;
@@ -441,7 +448,8 @@ export async function setActiveProjectId(projectId) {
 export const MARGINOTE_GENERAL_PROJECT_ID = GENERAL_PROJECT_ID;
 export const MARGINOTE_SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
 
-// Run migrations on module load. Callers can await `migrate()` again safely.
-migrate().catch((err) => {
-  console.warn('[marginote] initial migrate failed', err);
-});
+// Do NOT auto-migrate on module load: in the background service worker this
+// races with user-driven storage writes (delete/save) whenever the worker
+// wakes mid-operation and clobbers them with pre-op data. Entry points
+// (popup/dashboard init, background onInstalled/onStartup) call migrate()
+// explicitly.

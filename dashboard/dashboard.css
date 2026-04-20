@@ -63,6 +63,103 @@ body {
   font-size: 14px;
 }
 
+.marginote-dashboard-project-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+}
+
+.marginote-dashboard-project-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.marginote-dashboard-annotation {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.marginote-dashboard-annotation-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.marginote-dashboard-tag {
+  color: #ffffff;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.marginote-dashboard-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.marginote-dashboard-text {
+  margin: 6px 0;
+  padding: 8px 10px;
+  border-left: 3px solid #d1d5db;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.45;
+  background: #f9fafb;
+  border-radius: 0 4px 4px 0;
+  white-space: pre-wrap;
+}
+
+.marginote-dashboard-source {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.marginote-dashboard-source a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.marginote-dashboard-source a:hover {
+  text-decoration: underline;
+}
+
+.marginote-dashboard-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.marginote-dashboard-delete {
+  appearance: none;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #991b1b;
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.marginote-dashboard-delete:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.marginote-dashboard-delete:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .marginote-dashboard-toast {
   position: fixed;
   right: 16px;
