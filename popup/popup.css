@@ -1,0 +1,76 @@
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  padding: 12px;
+  width: 260px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  color: #111827;
+  background: #ffffff;
+}
+
+.marginote-popup-header {
+  margin-bottom: 10px;
+}
+
+.marginote-popup-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.marginote-popup-section {
+  margin-bottom: 10px;
+}
+
+.marginote-popup-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.marginote-popup-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font: inherit;
+  color: inherit;
+  background: #ffffff;
+}
+
+.marginote-popup-button {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: #111827;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.marginote-popup-button:hover {
+  background: #1f2937;
+}
+
+.marginote-popup-toast {
+  margin-top: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+}
+
+.marginote-popup-toast[data-kind="error"] {
+  background: #fee2e2;
+  color: #991b1b;
+}

@@ -1,0 +1,10 @@
+/*
+ * Marginote content-script styles.
+ *
+ * Convention: every class injected by Marginote into a host page is prefixed
+ * with `marginote-` to avoid name collisions. Root containers additionally
+ * set `all: initial` (see the selector below once it lands in Prompt 2) so
+ * host-page cascade cannot bleed into our UI.
+ *
+ * This file is intentionally minimal in Prompt 1 — filled in in Prompt 2.
+ */

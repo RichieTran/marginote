@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Marginote</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="marginote-popup-header">
+      <h1 class="marginote-popup-title">Marginote</h1>
+    </header>
+
+    <section class="marginote-popup-section">
+      <label for="marginote-project-switcher" class="marginote-popup-label">
+        Active project
+      </label>
+      <select id="marginote-project-switcher" class="marginote-popup-select">
+        <option value="">(project switcher placeholder)</option>
+      </select>
+    </section>
+
+    <section class="marginote-popup-section">
+      <button id="marginote-open-dashboard" class="marginote-popup-button">
+        Open Dashboard
+      </button>
+    </section>
+
+    <div id="marginote-popup-toast" class="marginote-popup-toast" hidden></div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

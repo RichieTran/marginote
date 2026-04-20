@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Marginote Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <div class="marginote-dashboard-root">
+      <aside class="marginote-dashboard-sidebar" aria-label="Projects">
+        <div class="marginote-dashboard-brand">Marginote</div>
+        <nav id="marginote-dashboard-projects" class="marginote-dashboard-projects">
+          <p class="marginote-dashboard-placeholder">
+            Projects and subgroups will appear here (Prompt 5).
+          </p>
+        </nav>
+      </aside>
+
+      <main class="marginote-dashboard-main" id="marginote-dashboard-main">
+        <header class="marginote-dashboard-header">
+          <h1 class="marginote-dashboard-title">Dashboard</h1>
+        </header>
+        <section class="marginote-dashboard-content">
+          <p class="marginote-dashboard-placeholder">
+            Annotations list and filters will appear here (Prompt 5).
+          </p>
+        </section>
+      </main>
+    </div>
+
+    <div id="marginote-dashboard-toast" class="marginote-dashboard-toast" hidden></div>
+
+    <script type="module" src="dashboard.js"></script>
+  </body>
+</html>
