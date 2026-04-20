@@ -1,0 +1,67 @@
+Used Claude Code:
+1. **Global conventions:**
+You are building a Chrome Extension called Marginote. These conventions apply to every prompt in this series:
+
+Stack: Vanilla JS (ES modules), HTML, CSS. No frameworks, no build step, no TypeScript. All Chrome APIs via Manifest V3.
+Code style: Async/await over promises. Small focused functions. JSDoc comments on exported functions. No external runtime dependencies.
+Data model versioning: All data stored in chrome.storage.local includes a top-level schemaVersion integer (start at 1). The storage utility exposes a migrate() function that runs on load and handles missing fields on older records by filling them with defaults rather than failing. When later prompts add new fields, bump schemaVersion and extend migrate().
+Error handling: User-facing errors (save failures, quota exceeded, etc.) surface as small non-blocking toasts in the popup/dashboard and console.warn in content scripts. Never swallow errors silently. Wrap every chrome.storage call in try/catch.
+Cascade rules (important, apply consistently):
+
+Deleting a project prompts the user to choose: delete all its annotations, or move them to the "General" project. Default selection is "move to General."
+Deleting a subgroup never deletes its annotations; they become ungrouped within the same project.
+
+
+Storage: Use chrome.storage.local. Request the unlimitedStorage permission in the manifest so users aren't capped at 10MB.
+Testing checkpoint: After each prompt, manually verify the feature on at least three different site types: a static article (e.g., a Wikipedia page), a dynamic SPA (e.g., a GitHub file view), and a news site with heavy CSS (e.g., nytimes.com). Note any failures in a TESTING.md file.
+Styling: All injected content-script CSS is scoped with a marginote- class prefix and uses all: initial on root containers to avoid host-page style bleed.
+
+
+**What to do: — Project scaffolding and boilerplate**
+Create a Chrome Extension called Marginote with Manifest V3. Set up the full project structure:
+manifest.json with permissions: activeTab, storage, unlimitedStorage, tabs, scripting, contextMenus. Register a background service worker, popup, content script that runs on all URLs (<all_urls>), and dashboard page. Use chrome_url_overrides is not needed — the dashboard opens via a button in the popup that calls chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/dashboard.html') }). Also register a keyboard command Ctrl+Shift+M (Mac: Cmd+Shift+M) to open the dashboard.
+/popup/popup.html and /popup/popup.js — minimal popup with the extension name, a placeholder for the project switcher, and an "Open Dashboard" button.
+/content/content.js and /content/content.css — empty content script and stylesheet (to be filled in Prompt 2). The CSS file must start with a comment noting the marginote- class prefix convention.
+/background/background.js — empty service worker with a comment explaining its role (listening for project changes, managing the badge, handling context menu clicks, responding to the keyboard command).
+/dashboard/dashboard.html, /dashboard/dashboard.js, /dashboard/dashboard.css — basic full-page dashboard with placeholder text and a root layout (sidebar + main area) ready for Prompt 5.
+/utils/storage.js — utility module wrapping chrome.storage.local with: getProjects, saveProject, deleteProject(projectId, { cascadeMode: 'delete' | 'moveToGeneral' }), getSubgroups(projectId), saveSubgroup, deleteSubgroup (orphans annotations), getAnnotations(filters), saveAnnotation, deleteAnnotation, getActiveProjectId, setActiveProjectId, and migrate(). All functions are async with try/catch. Every write bumps no version; migrate() runs on module load and handles records missing later-added fields by defaulting them.
+Data schemas (defined as JSDoc comments at the top of storage.js):
+schemaVersion: 1
+
+Project:
+  id: string (uuid)
+  name: string
+  color: string (hex, from curated palette — see Prompt 3)
+  createdAt: ISO timestamp
+  // Note: subgroups are stored as their own collection keyed by projectId,
+  // not nested inside the project, to keep reads/writes atomic.
+
+Subgroup:
+  id: string (uuid)
+  projectId: string
+  name: string
+  createdAt: ISO timestamp
+
+Annotation:
+  id: string (uuid)
+  projectId: string
+  subgroupId: string | null
+  pageUrl: string
+  pageTitle: string
+  selectedText: string
+  note: string | null           // added in Prompt 6, migrate defaults to null
+  anchorData: {
+    selectedText: string,
+    contextBefore: string,       // 30 chars before selection
+    contextAfter: string,        // 30 chars after selection
+    containerSelector: string,   // see Prompt 2 for strategy
+    textOffset: number           // offset within container's textContent
+  }
+  createdAt: ISO timestamp
+/assets/ — PNG icons at 16x16, 48x48, and 128x128. Generate them as simple solid-color squares (use any image library in a Node script, or include them as pre-made PNGs). Do not use SVG for manifest icons.
+README.md — project name, one-line description, and instructions for loading the unpacked extension in Chrome via chrome://extensions developer mode.
+CONVENTIONS.md — copy the Global Conventions block from the top of this document.
+TESTING.md — empty file with a header "Manual test log" where you'll record per-prompt verification notes.
+Verify: the extension loads without manifest errors, the popup opens, the dashboard opens via the popup button and the keyboard shortcut, and chrome.storage.local is readable/writable from a test call in the popup.
+
+2. 
