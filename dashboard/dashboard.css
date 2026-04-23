@@ -63,6 +63,10 @@ body {
   font-size: 14px;
 }
 
+.marginote-dashboard-project-block {
+  margin-bottom: 6px;
+}
+
 .marginote-dashboard-project-row {
   display: flex;
   align-items: center;
@@ -70,11 +74,78 @@ body {
   padding: 6px 4px;
 }
 
+.marginote-dashboard-project-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .marginote-dashboard-project-swatch {
   width: 10px;
   height: 10px;
   border-radius: 2px;
   flex-shrink: 0;
+}
+
+.marginote-dashboard-subgroups {
+  list-style: none;
+  margin: 0 0 4px 20px;
+  padding: 0;
+}
+
+.marginote-dashboard-subgroup-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 4px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.marginote-dashboard-subgroup-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marginote-dashboard-subgroup-input {
+  flex: 1;
+  padding: 3px 6px;
+  border: 1px solid #9ca3af;
+  border-radius: 3px;
+  font: inherit;
+  color: inherit;
+  background: #ffffff;
+  min-width: 0;
+}
+
+.marginote-dashboard-subgroup-input:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: -1px;
+}
+
+.marginote-dashboard-icon-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.marginote-dashboard-icon-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.marginote-dashboard-icon-btn-danger:hover {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .marginote-dashboard-annotation {
@@ -158,6 +229,203 @@ body {
 .marginote-dashboard-delete:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* ---- projects header + new-project form ---- */
+
+.marginote-dashboard-projects-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+}
+
+.marginote-dashboard-projects-label {
+  font-weight: 600;
+}
+
+.marginote-dashboard-new-project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+}
+
+.marginote-dashboard-new-project-form[hidden] {
+  display: none;
+}
+
+.marginote-dashboard-new-project-input {
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font: inherit;
+  color: inherit;
+  background: #ffffff;
+}
+
+.marginote-dashboard-new-project-input:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: -1px;
+}
+
+.marginote-dashboard-swatches {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+}
+
+.marginote-dashboard-swatch {
+  appearance: none;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  background-clip: content-box;
+}
+
+.marginote-dashboard-swatch:hover {
+  transform: scale(1.08);
+}
+
+.marginote-dashboard-swatch[aria-checked="true"] {
+  border-color: #111827;
+  outline: 2px solid #ffffff;
+  outline-offset: -4px;
+}
+
+.marginote-dashboard-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.marginote-dashboard-btn-primary {
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: #111827;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.marginote-dashboard-btn-primary:hover {
+  background: #1f2937;
+}
+
+.marginote-dashboard-btn-secondary {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  cursor: pointer;
+}
+
+.marginote-dashboard-btn-secondary:hover {
+  background: #f3f4f6;
+}
+
+.marginote-dashboard-btn-danger {
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: #dc2626;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.marginote-dashboard-btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* ---- delete project modal ---- */
+
+.marginote-dashboard-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.marginote-dashboard-modal[hidden] {
+  display: none;
+}
+
+.marginote-dashboard-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+}
+
+.marginote-dashboard-modal-dialog {
+  position: relative;
+  width: 340px;
+  padding: 18px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.marginote-dashboard-modal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.marginote-dashboard-modal-body {
+  margin: 0;
+  font-size: 13px;
+  color: #374151;
+}
+
+.marginote-dashboard-cascade {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.marginote-dashboard-cascade-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.marginote-dashboard-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .marginote-dashboard-toast {

@@ -458,18 +458,130 @@
         }
         .marginote-tooltip-btn:hover { background: #1f2937; }
         .marginote-tooltip-btn:focus { outline: 2px solid #60a5fa; outline-offset: -2px; }
+        .marginote-tooltip-select,
+        .marginote-tooltip-input {
+          appearance: none;
+          border: 0;
+          background: #1f2937;
+          color: #ffffff;
+          font: inherit;
+          padding: 0 8px;
+          height: 24px;
+          margin: 0 0 0 8px;
+          border-radius: 4px;
+          max-width: 160px;
+        }
+        .marginote-tooltip-input { padding: 0 6px; }
+        .marginote-tooltip-select:focus,
+        .marginote-tooltip-input:focus {
+          outline: 2px solid #60a5fa;
+          outline-offset: -2px;
+        }
+        [hidden] { display: none !important; }
       </style>
       <div class="marginote-tooltip" role="toolbar" aria-label="Marginote">
+        <select class="marginote-tooltip-select" data-action="subgroup">
+          <option value="">No subgroup</option>
+          <option value="__new__">+ New subgroup…</option>
+        </select>
+        <input
+          class="marginote-tooltip-input"
+          data-action="new-subgroup"
+          type="text"
+          maxlength="40"
+          placeholder="Subgroup name"
+          hidden
+        />
         <button class="marginote-tooltip-btn" data-action="save" type="button">Save</button>
       </div>
     `;
     // Keep the document selection alive when the user clicks tooltip UI.
     shadow.addEventListener('mousedown', (e) => e.preventDefault());
     shadow.querySelector('[data-action="save"]').addEventListener('click', onSaveClick);
+    shadow
+      .querySelector('[data-action="subgroup"]')
+      .addEventListener('change', onSubgroupChange);
+    shadow
+      .querySelector('[data-action="new-subgroup"]')
+      .addEventListener('keydown', onNewSubgroupKey);
     document.body.appendChild(host);
     STATE.tooltipHost = host;
     STATE.tooltipShadow = shadow;
     return host;
+  }
+
+  /**
+   * Replace the subgroup <select>'s options with the given list, preserving
+   * the "No subgroup" default and "+ New subgroup…" terminal option. Also
+   * restores the select-visible / input-hidden state.
+   * @param {Array<{id:string,name:string}>} subgroups
+   */
+  function populateSubgroupSelect(subgroups) {
+    const shadow = STATE.tooltipShadow;
+    if (!shadow) return;
+    const select = /** @type {HTMLSelectElement} */ (
+      shadow.querySelector('[data-action="subgroup"]')
+    );
+    const input = /** @type {HTMLInputElement} */ (
+      shadow.querySelector('[data-action="new-subgroup"]')
+    );
+    if (!select || !input) return;
+    select.innerHTML = '';
+    const none = document.createElement('option');
+    none.value = '';
+    none.textContent = 'No subgroup';
+    select.appendChild(none);
+    for (const sg of subgroups) {
+      const opt = document.createElement('option');
+      opt.value = sg.id;
+      opt.textContent = sg.name;
+      select.appendChild(opt);
+    }
+    const newOpt = document.createElement('option');
+    newOpt.value = '__new__';
+    newOpt.textContent = '+ New subgroup…';
+    select.appendChild(newOpt);
+    select.value = '';
+    select.hidden = false;
+    input.value = '';
+    input.hidden = true;
+  }
+
+  function onSubgroupChange(e) {
+    const select = /** @type {HTMLSelectElement} */ (e.target);
+    if (select.value !== '__new__') return;
+    const shadow = STATE.tooltipShadow;
+    const input = /** @type {HTMLInputElement|null} */ (
+      shadow?.querySelector('[data-action="new-subgroup"]')
+    );
+    if (!input) return;
+    select.hidden = true;
+    input.hidden = false;
+    input.value = '';
+    // Focus needs to wait a tick: changing a <select> inside a shadow root
+    // leaves the select focused until the change event finishes bubbling.
+    setTimeout(() => input.focus(), 0);
+  }
+
+  function onNewSubgroupKey(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      onSaveClick(e);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      const shadow = STATE.tooltipShadow;
+      const select = /** @type {HTMLSelectElement|null} */ (
+        shadow?.querySelector('[data-action="subgroup"]')
+      );
+      const input = /** @type {HTMLInputElement} */ (e.target);
+      input.hidden = true;
+      input.value = '';
+      if (select) {
+        select.hidden = false;
+        select.value = '';
+        select.focus();
+      }
+    }
   }
 
   function showTooltip(rect) {
@@ -522,6 +634,19 @@
       const { selectedText, anchorData } = captureAnchor(range);
       STATE.pendingSelection = { selectedText, anchorData, rect };
       showTooltip(rect);
+      // Reset select to a known "No subgroup" state immediately so a stale
+      // option from a prior selection can't be saved if the user clicks Save
+      // before the async fetch completes.
+      populateSubgroupSelect([]);
+      // Load subgroups for the active project so the select is accurate.
+      sendMessage({ type: 'marginote:getActiveProjectContext' })
+        .then((ctx) => {
+          if (!ctx?.ok) return;
+          // Only populate if the tooltip is still showing this same selection.
+          if (!STATE.pendingSelection) return;
+          populateSubgroupSelect(ctx.subgroups || []);
+        })
+        .catch(() => {});
     }, 0);
   }
 
@@ -559,9 +684,41 @@
       if (!ctx?.ok) throw new Error(ctx?.error || 'failed to fetch active project');
       const activeProjectId = ctx.activeProjectId;
       const project = (ctx.projects || []).find((p) => p.id === activeProjectId);
+
+      const shadow = STATE.tooltipShadow;
+      const select = /** @type {HTMLSelectElement|null} */ (
+        shadow?.querySelector('[data-action="subgroup"]')
+      );
+      const input = /** @type {HTMLInputElement|null} */ (
+        shadow?.querySelector('[data-action="new-subgroup"]')
+      );
+
+      let subgroupId = null;
+      if (input && !input.hidden) {
+        const name = input.value.trim();
+        if (name) {
+          const res = await sendMessage({
+            type: 'marginote:createSubgroup',
+            projectId: activeProjectId,
+            name,
+          });
+          if (!res?.ok) {
+            throw new Error(res?.error || 'create subgroup failed');
+          }
+          subgroupId = res.subgroup?.id ?? null;
+        }
+      } else if (
+        select &&
+        !select.hidden &&
+        select.value &&
+        select.value !== '__new__'
+      ) {
+        subgroupId = select.value;
+      }
+
       const annotation = {
         projectId: activeProjectId,
-        subgroupId: null,
+        subgroupId,
         pageUrl: location.href,
         pageTitle: document.title,
         selectedText: pending.selectedText,
@@ -571,7 +728,6 @@
       const res = await sendMessage({ type: 'marginote:saveAnnotation', annotation });
       if (!res?.ok) throw new Error(res?.error || 'save failed');
       const saved = res.annotation;
-      const color = hexToRgba(project?.color || DEFAULT_PROJECT_COLOR, HIGHLIGHT_ALPHA);
       const observer = STATE.observer;
       observer?.disconnect();
       try {

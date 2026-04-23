@@ -10,11 +10,53 @@
     <div class="marginote-dashboard-root">
       <aside class="marginote-dashboard-sidebar" aria-label="Projects">
         <div class="marginote-dashboard-brand">Marginote</div>
-        <nav id="marginote-dashboard-projects" class="marginote-dashboard-projects">
-          <p class="marginote-dashboard-placeholder">
-            Projects and subgroups will appear here (Prompt 5).
-          </p>
-        </nav>
+
+        <div class="marginote-dashboard-projects-header">
+          <span class="marginote-dashboard-projects-label">Projects</span>
+          <button
+            id="marginote-dashboard-new-project-btn"
+            class="marginote-dashboard-icon-btn"
+            type="button"
+          >
+            + New project
+          </button>
+        </div>
+
+        <form
+          id="marginote-dashboard-new-project-form"
+          class="marginote-dashboard-new-project-form"
+          hidden
+        >
+          <input
+            id="marginote-dashboard-new-project-name"
+            class="marginote-dashboard-new-project-input"
+            type="text"
+            placeholder="Project name"
+            maxlength="40"
+            autocomplete="off"
+            required
+          />
+          <div
+            id="marginote-dashboard-new-project-swatches"
+            class="marginote-dashboard-swatches"
+            role="radiogroup"
+            aria-label="Project color"
+          ></div>
+          <div class="marginote-dashboard-form-actions">
+            <button
+              type="button"
+              id="marginote-dashboard-new-project-cancel"
+              class="marginote-dashboard-btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="marginote-dashboard-btn-primary">
+              Create
+            </button>
+          </div>
+        </form>
+
+        <nav id="marginote-dashboard-projects" class="marginote-dashboard-projects"></nav>
       </aside>
 
       <main class="marginote-dashboard-main" id="marginote-dashboard-main">
@@ -30,6 +72,67 @@
     </div>
 
     <div id="marginote-dashboard-toast" class="marginote-dashboard-toast" hidden></div>
+
+    <div
+      id="marginote-dashboard-delete-modal"
+      class="marginote-dashboard-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="marginote-dashboard-delete-title"
+      hidden
+    >
+      <div class="marginote-dashboard-modal-backdrop"></div>
+      <div class="marginote-dashboard-modal-dialog">
+        <h2
+          id="marginote-dashboard-delete-title"
+          class="marginote-dashboard-modal-title"
+        >
+          Delete project?
+        </h2>
+        <p class="marginote-dashboard-modal-body">
+          What should happen to annotations in
+          <strong id="marginote-dashboard-delete-name"></strong>?
+        </p>
+        <fieldset class="marginote-dashboard-cascade">
+          <legend class="marginote-dashboard-visually-hidden">
+            Cascade choice
+          </legend>
+          <label class="marginote-dashboard-cascade-option">
+            <input
+              type="radio"
+              name="marginote-dashboard-cascade"
+              value="moveToGeneral"
+              checked
+            />
+            <span>Move annotations to General</span>
+          </label>
+          <label class="marginote-dashboard-cascade-option">
+            <input
+              type="radio"
+              name="marginote-dashboard-cascade"
+              value="delete"
+            />
+            <span>Delete all annotations</span>
+          </label>
+        </fieldset>
+        <div class="marginote-dashboard-form-actions">
+          <button
+            type="button"
+            id="marginote-dashboard-delete-cancel"
+            class="marginote-dashboard-btn-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="marginote-dashboard-delete-confirm"
+            class="marginote-dashboard-btn-danger"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="dashboard.js"></script>
   </body>

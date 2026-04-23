@@ -6,26 +6,195 @@
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <header class="marginote-popup-header">
-      <h1 class="marginote-popup-title">Marginote</h1>
-    </header>
+    <div class="marginote-popup">
+      <button
+        id="marginote-switcher-trigger"
+        class="marginote-switcher-trigger"
+        type="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+        aria-controls="marginote-switcher-panel"
+      >
+        <span
+          id="marginote-active-dot"
+          class="marginote-dot"
+          aria-hidden="true"
+        ></span>
+        <span id="marginote-active-name" class="marginote-active-name">…</span>
+        <span class="marginote-chevron" aria-hidden="true">▾</span>
+      </button>
 
-    <section class="marginote-popup-section">
-      <label for="marginote-project-switcher" class="marginote-popup-label">
-        Active project
-      </label>
-      <select id="marginote-project-switcher" class="marginote-popup-select">
-        <option value="">(project switcher placeholder)</option>
-      </select>
-    </section>
+      <div
+        id="marginote-switcher-panel"
+        class="marginote-switcher-panel"
+        role="menu"
+        hidden
+      >
+        <ul
+          id="marginote-project-list"
+          class="marginote-project-list"
+          role="none"
+        ></ul>
 
-    <section class="marginote-popup-section">
-      <button id="marginote-open-dashboard" class="marginote-popup-button">
+        <div class="marginote-switcher-divider" aria-hidden="true"></div>
+
+        <button
+          id="marginote-new-project-btn"
+          class="marginote-new-project-btn"
+          type="button"
+        >
+          <span aria-hidden="true">+</span> New project
+        </button>
+
+        <form
+          id="marginote-new-project-form"
+          class="marginote-new-project-form"
+          hidden
+        >
+          <label class="marginote-form-label" for="marginote-new-name">
+            Name
+          </label>
+          <input
+            id="marginote-new-name"
+            class="marginote-form-input"
+            type="text"
+            maxlength="40"
+            autocomplete="off"
+            placeholder="e.g. Research"
+            required
+          />
+
+          <div class="marginote-form-label">Color</div>
+          <div
+            id="marginote-new-swatches"
+            class="marginote-swatches"
+            role="radiogroup"
+            aria-label="Project color"
+          ></div>
+
+          <div class="marginote-form-actions">
+            <button
+              type="button"
+              id="marginote-new-cancel"
+              class="marginote-btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="marginote-btn-primary">
+              Create
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <section class="marginote-section">
+        <div class="marginote-section-header">
+          <span class="marginote-section-label">Subgroups</span>
+          <button
+            id="marginote-add-subgroup-btn"
+            class="marginote-new-project-btn"
+            type="button"
+          >
+            + New subgroup
+          </button>
+        </div>
+        <form
+          id="marginote-add-subgroup-form"
+          class="marginote-add-subgroup-form"
+          hidden
+        >
+          <input
+            id="marginote-add-subgroup-input"
+            class="marginote-form-input"
+            type="text"
+            maxlength="40"
+            placeholder="Subgroup name"
+            autocomplete="off"
+            required
+          />
+        </form>
+        <ul
+          id="marginote-subgroup-list"
+          class="marginote-subgroup-list"
+        ></ul>
+      </section>
+
+      <section class="marginote-section">
+        <div class="marginote-section-header">
+          <span class="marginote-section-label">Recent</span>
+        </div>
+        <div
+          id="marginote-recent-list"
+          class="marginote-recent-list"
+        ></div>
+      </section>
+
+      <button
+        id="marginote-open-dashboard"
+        class="marginote-btn-primary marginote-open-dashboard"
+        type="button"
+      >
         Open Dashboard
       </button>
-    </section>
+    </div>
 
-    <div id="marginote-popup-toast" class="marginote-popup-toast" hidden></div>
+    <div
+      id="marginote-delete-modal"
+      class="marginote-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="marginote-delete-title"
+      hidden
+    >
+      <div class="marginote-modal-backdrop"></div>
+      <div class="marginote-modal-dialog">
+        <h2 id="marginote-delete-title" class="marginote-modal-title">
+          Delete project?
+        </h2>
+        <p class="marginote-modal-body">
+          What should happen to annotations in
+          <strong id="marginote-delete-name"></strong>?
+        </p>
+        <fieldset class="marginote-cascade">
+          <legend class="marginote-visually-hidden">Cascade choice</legend>
+          <label class="marginote-cascade-option">
+            <input
+              type="radio"
+              name="marginote-cascade"
+              value="moveToGeneral"
+              checked
+            />
+            <span>Move annotations to General</span>
+          </label>
+          <label class="marginote-cascade-option">
+            <input type="radio" name="marginote-cascade" value="delete" />
+            <span>Delete all annotations</span>
+          </label>
+        </fieldset>
+        <div class="marginote-form-actions">
+          <button
+            type="button"
+            id="marginote-delete-cancel"
+            class="marginote-btn-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="marginote-delete-confirm"
+            class="marginote-btn-danger"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="marginote-popup-toast"
+      class="marginote-popup-toast"
+      hidden
+    ></div>
 
     <script type="module" src="popup.js"></script>
   </body>

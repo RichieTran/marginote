@@ -84,3 +84,54 @@ Highlight rendering. Wrap the matched range in <span class="marginote-highlight"
 Delete via context menu. Register a context menu item "Delete Marginote annotation" via chrome.contextMenus.create in the background service worker, shown only when right-clicking on a marginote-highlight element (use documentUrlPatterns and pass the annotation ID via a message from the content script to the background when the menu fires). On click, delete the annotation and unwrap the highlight span in-place. Do not override the browser's native right-click menu.
 Styling. The tooltip is a small rounded rectangle with subtle shadow, ~32px tall, inside Shadow DOM so host styles can't affect it. The highlight span uses only background-color and border-radius: 2px to minimize layout disruption.
 Verify on the three test site types and log results in TESTING.md.
+
+3. Building on the existing Marginote extension, build out the full dashboard page.
+Layout. Sidebar (left, ~240px) listing all projects with their color dots. Main area shows the selected project's annotations, organized by subgroup with an "Ungrouped" section at the top. The sidebar also has a "Search" item at the top and an "All annotations (timeline)" item (timeline view is added in Prompt 6 — leave a stub for now).
+Annotation cards. Each card shows: the highlighted text (with a 3-line clamp and "Show more" toggle), the optional note, the page title as a clickable link (target="_blank"), the subgroup name as a small pill, and the relative date ("3 days ago") with the absolute date on hover.
+Search. A search bar at the top of the main area. Scope: the currently selected project by default, with a checkbox "Search all projects." Matching is case-insensitive substring across selectedText, note, and pageTitle. Results show project + subgroup indicators.
+Drag and drop. Native HTML5 drag and drop. Users can drag annotations:
+
+Between subgroups within the same project — always allowed.
+Between projects — allowed, but dropping onto a project in the sidebar shows a brief confirmation inline ("Move to <project>?" with Confirm / Cancel) because it's a bigger change.
+When moved across projects, the annotation's subgroupId resets to null.
+
+Markdown export. Per-project "Export to Markdown" button generates a single .md file for that project via a Blob download. Structure:
+# <Project name>
+
+_Exported <date>_
+
+## <Subgroup name>
+
+- > <highlighted text>
+  <note if any>
+  Source: [<page title>](<page url>) — <date saved>
+
+## Ungrouped
+
+- > …
+Also add an "Export all (JSON)" button in the sidebar footer that dumps the entire storage state (projects, subgroups, annotations, schemaVersion) as a downloadable JSON file, and an "Import from JSON" button that reads a file, validates schemaVersion, runs migrate() if needed, and merges into the current storage (skipping duplicates by id, prompting on conflict).
+Styling. Clean, Notion/Obsidian-inspired. Sidebar with subtle borders and hover states. Respect prefers-color-scheme for light/dark.
+Verify drag-and-drop between subgroups and across projects, markdown export, and JSON round-trip (export → clear storage → import → everything restored).
+
+4. Building on the existing Marginote extension, add polish features.
+Notes field in save tooltip. Add a single-line <textarea> (grows to 3 lines) labeled "Add a note (optional)" above the Save button. The note saves to annotation.note.
+Highlight hover popover. When the user hovers over a marginote-highlight for 400ms, show a small popover (also in Shadow DOM) displaying:
+
+The note (if any).
+Project name with color dot.
+Subgroup name (or "Ungrouped").
+Relative timestamp.
+An Edit note button that swaps the note display for an inline textarea with Save / Cancel. Saving updates the annotation via the storage utility.
+A Jump to source button (useful if the popover is shown on a different page — e.g., in the dashboard preview later).
+
+Hide the popover on mouseleave (with 200ms grace period so the user can move into the popover itself).
+Timeline view. In the dashboard sidebar, "All annotations (timeline)" shows every annotation across all projects in reverse chronological order, grouped by day ("Today", "Yesterday", specific dates). Each card shows its project color dot and subgroup pill.
+Jump to page button. Every annotation card in the dashboard has a "Jump to page" button that opens pageUrl in a new tab. (This replaces clicking just the title for users who want an explicit action.)
+Transitions. Add subtle transitions (150–200ms ease-out) for: popup dropdown opens, tooltip appearance, popover fade, card hover lift (1px translateY, subtle shadow).
+Light/dark highlight contrast — simplified approach. Do not attempt automatic page background detection. Instead:
+
+Define two highlight styles per project color: a "light mode" style (35% opacity on the color) and a "dark mode" style (a 2px bottom border in the color with 15% background).
+Add a setting in the popup: "Highlight style" with three options: Auto, Light, Dark. Auto reads window.matchMedia('(prefers-color-scheme: dark)') at highlight render time and picks accordingly.
+Persist the setting in storage as highlightStyle: 'auto' | 'light' | 'dark', default 'auto'.
+
+Verify all hover/edit/timeline flows and confirm highlight contrast is readable on both a light site (Wikipedia) and a dark site (a GitHub page with the dark theme enabled).

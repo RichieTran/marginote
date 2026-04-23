@@ -4,39 +4,201 @@
 
 body {
   margin: 0;
-  padding: 12px;
-  width: 260px;
+  padding: 10px;
+  width: 300px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 13px;
   color: #111827;
   background: #ffffff;
 }
 
-.marginote-popup-header {
-  margin-bottom: 10px;
+.marginote-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.marginote-popup-title {
-  margin: 0;
-  font-size: 16px;
+/* ---- switcher trigger (header) ---- */
+
+.marginote-switcher-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.marginote-switcher-trigger:hover {
+  background: #f9fafb;
+}
+
+.marginote-switcher-trigger[aria-expanded="true"] {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.marginote-active-name {
+  flex: 1;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.marginote-popup-section {
-  margin-bottom: 10px;
+.marginote-chevron {
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1;
 }
 
-.marginote-popup-label {
-  display: block;
+.marginote-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #6b7280;
+}
+
+/* ---- switcher panel ---- */
+
+.marginote-switcher-panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.marginote-project-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.marginote-project-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.marginote-project-row:hover {
+  background: #f3f4f6;
+}
+
+.marginote-project-row.is-active {
+  background: #f3f4f6;
+}
+
+.marginote-project-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marginote-project-check {
+  color: #059669;
+  font-weight: 700;
+  font-size: 12px;
+  min-width: 12px;
+  text-align: center;
+}
+
+.marginote-project-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.marginote-icon-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.marginote-icon-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.marginote-icon-btn[data-action="delete"]:hover {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.marginote-rename-input {
+  flex: 1;
+  padding: 2px 6px;
+  border: 1px solid #9ca3af;
+  border-radius: 3px;
+  font: inherit;
+  color: inherit;
+  background: #ffffff;
+  min-width: 0;
+}
+
+.marginote-switcher-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 4px 0;
+}
+
+.marginote-new-project-btn {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font: inherit;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+.marginote-new-project-btn:hover {
+  background: #eff6ff;
+}
+
+/* ---- new project form ---- */
+
+.marginote-new-project-form {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.marginote-new-project-form[hidden] {
+  display: none;
+}
+
+.marginote-form-label {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #6b7280;
-  margin-bottom: 4px;
 }
 
-.marginote-popup-select {
-  width: 100%;
+.marginote-form-input {
   padding: 6px 8px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
@@ -45,9 +207,49 @@ body {
   background: #ffffff;
 }
 
-.marginote-popup-button {
+.marginote-form-input:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: -1px;
+}
+
+.marginote-swatches {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+}
+
+.marginote-swatch {
+  appearance: none;
   width: 100%;
-  padding: 8px 10px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  background-clip: content-box;
+}
+
+.marginote-swatch:hover {
+  transform: scale(1.08);
+}
+
+.marginote-swatch[aria-checked="true"] {
+  border-color: #111827;
+  outline: 2px solid #ffffff;
+  outline-offset: -4px;
+}
+
+.marginote-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* ---- buttons ---- */
+
+.marginote-btn-primary {
+  padding: 7px 12px;
   border: 1px solid transparent;
   border-radius: 4px;
   background: #111827;
@@ -57,12 +259,233 @@ body {
   cursor: pointer;
 }
 
-.marginote-popup-button:hover {
+.marginote-btn-primary:hover {
   background: #1f2937;
 }
 
+.marginote-btn-secondary {
+  padding: 7px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  cursor: pointer;
+}
+
+.marginote-btn-secondary:hover {
+  background: #f3f4f6;
+}
+
+.marginote-btn-danger {
+  padding: 7px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: #dc2626;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.marginote-btn-danger:hover {
+  background: #b91c1c;
+}
+
+.marginote-open-dashboard {
+  width: 100%;
+}
+
+/* ---- sections (subgroups + recent) ---- */
+
+.marginote-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: #ffffff;
+}
+
+.marginote-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  padding: 2px 0 4px;
+}
+
+.marginote-section-label {
+  font-weight: 600;
+}
+
+.marginote-add-subgroup-form {
+  margin: 4px 0;
+}
+
+.marginote-subgroup-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.marginote-subgroup-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.marginote-subgroup-row:hover {
+  background: #f3f4f6;
+}
+
+.marginote-subgroup-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marginote-empty {
+  font-size: 12px;
+  color: #9ca3af;
+  padding: 4px 6px;
+}
+
+.marginote-recent-list {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.marginote-recent-group {
+  margin-bottom: 6px;
+}
+
+.marginote-recent-group-heading {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  padding: 4px 6px 2px;
+  font-weight: 600;
+}
+
+.marginote-recent-item {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 6px;
+  border-radius: 4px;
+  gap: 2px;
+}
+
+.marginote-recent-item:hover {
+  background: #f3f4f6;
+}
+
+.marginote-recent-text {
+  font-size: 12px;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marginote-recent-title {
+  font-size: 11px;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- delete modal ----
+ * In a Chrome extension popup the window sizes to body content, so a
+ * position: fixed modal gets clipped (the popup doesn't grow to hold it).
+ * Instead, when the modal is open we hide .marginote-popup and let the
+ * dialog flow as a normal block — the popup then sizes to fit the dialog.
+ */
+
+.marginote-popup[hidden] {
+  display: none;
+}
+
+.marginote-modal {
+  display: block;
+}
+
+.marginote-modal[hidden] {
+  display: none;
+}
+
+.marginote-modal-backdrop {
+  display: none;
+}
+
+.marginote-modal-dialog {
+  width: 100%;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.marginote-modal-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.marginote-modal-body {
+  margin: 0;
+  font-size: 12px;
+  color: #374151;
+}
+
+.marginote-cascade {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.marginote-cascade-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.marginote-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- toast ---- */
+
 .marginote-popup-toast {
-  margin-top: 8px;
+  margin-top: 6px;
   padding: 6px 8px;
   border-radius: 4px;
   background: #fef3c7;
